@@ -74,50 +74,42 @@
 var line = d3.line()
     .x(function(d) { console.log(x(d.date)); return x(d.date); })
     // .x(function(d) { console.log(x(d.date)); return 27; })
-    .y(function(d) { console.log(y(d.attacks)); return y(d.attacks); });
+    .y(function(d) { console.log(y(d.Belgium)); return y(d.Belgium); });
  
 ////Creating the area generator, defing by using accessor functions the date being the x variable and the price being the y1 variable and the height being the y0 in order to avoid that the area that at the left up corner.   
    var area = d3.area()
     .x(function(d) { return x(d.date); })
   	.y0(height)
-    .y1(function(d) { return y(d.attacks); });
+    .y1(function(d) { return y(d.Belgium); });
  
-//Connecting to the belgium set    
+//Connecting to the data set    
   d3.text('EU_Terrorism.csv', function(error, raw) {
 
     var dsv = d3.dsvFormat(',')
     var data = dsv.parse(raw);
-    var belgium  = data.map(e => ({
-      date: new Date(e.iyear),
-      attacks:  parseInt(e.Belgium)
-    }))
-    var denmark
-    console.log(belgium)
-    // debugger
-    // data.forEach(function(d) {
-    //   d.date = new Date(d.iyear)
-    //   // debug ger
-    //   d.attacks = parseInt(d.attacks)
-    //   d.Denmark = parseInt(d.Denmark)
-    //   // belgium[d]
-    //   console.log(d)
-    //   // d.close = +d.close;
-    // });
+    data.forEach(function(d) {
+      d.date = new Date(d.iyear)
+      // debug ger
+      d.Belgium = parseInt(d.Belgium)
+      d.Denmark = parseInt(d.Denmark)
+      console.log(d)
+      // d.close = +d.close;
+    });
  
 //Defining the domain for the linear scaling using D3 extent which return the min and max
-    x.domain(d3.extent(belgium, function(d) { return d.date; }));
+    x.domain(d3.extent(data, function(d) { return d.date; }));
     // debugger
-    y.domain([0, d3.max(belgium.map(function(d) { return d.attacks; }))])
-    // debugger
+    y.domain([0, d3.max(data.map(function(d) { return d.Belgium; }))])
+
     svg.append("path")
         .attr("class", "line")
-        .attr("d", line(belgium));
+        .attr("d", line(data));
 
     svg.append("path")
        .attr("class", "area")
-       .attr("d", area(belgium))
+       .attr("d", area(data))
     	 .style("fill-opacity", 0.1)
-    	//  .style("fill", function(d) { return (belgium.iyear); });
+    	//  .style("fill", function(d) { return (data.iyear); });
     
 // Calling and defining the x axis at the same time     
     svg.append("g")
