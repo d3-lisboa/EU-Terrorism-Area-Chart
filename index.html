@@ -25,7 +25,7 @@
       letter-spacing: 0.15em;
     }
 
-    .visualization {
+    .container {
       background: #ece5d6;
       margin-right: 5%;
       margin-left: 5%;
@@ -35,14 +35,49 @@
       padding-bottom: 24px;
       padding-top: 24px;
     }
+
+    .labels {
+    }
+
+    .label {
+      width: 8%;
+      height: 36px;
+      padding-top: 14px;
+      display: inline-block;
+      margin-right: 2%;
+      margin-left: 2%;
+      text-align: center;
+      color: #636363;
+      font-family: 'Roboto';
+      font-size: 21px;
+    }
     
   </style>
 </head>
 
 <body>
-  <div class="title">EU Terrorism 1970-2019</div>
-  <div class="visualization"></div>
+  <div class="title">EU Terrorism 1970-2014</div>
+  <div class="container">
+    <div class="labels">
+      <div class="label" style="background: #f7ecab">Spain</div>
+      <div class="label" style="background: #96dfd1">Italy</div>
+      <div class="label" style="background: #f5c8c8">Uk</div>
+      <div class="label" style="background: #badeb5">France</div>
+      <div class="label" style="background: #9dbece">Belgium</div>
+    </div>
+    <div class="visualization"></div>
+  </div>
   <script>
+
+  //country colours
+
+  var colours = {
+    spain: '#f7ecab',
+    italy: '#96dfd1',
+    uk: '#f5c8c8',
+    france:'#badeb5',
+    belgium:'#9dbece',
+  }
  
 //Margin Convention     
   var margin = {top: 20, right: 30, bottom: 20, left: 100},
@@ -87,28 +122,63 @@ var line = d3.line()
 
     var dsv = d3.dsvFormat(',')
     var data = dsv.parse(raw);
-    var belgium  = data.map(e => ({
+    var belgium = data.map(e => ({
       date: new Date(e.iyear),
       attacks:  parseInt(e.Belgium)
     }))
-    var denmark
-    console.log(belgium)
-    // debugger
-    // data.forEach(function(d) {
-    //   d.date = new Date(d.iyear)
-    //   // debug ger
-    //   d.attacks = parseInt(d.attacks)
-    //   d.Denmark = parseInt(d.Denmark)
-    //   // belgium[d]
-    //   console.log(d)
-    //   // d.close = +d.close;
-    // });
- 
+    var italy  = data.map(e => ({
+      date: new Date(e.iyear),
+      attacks:  parseInt(e.Italy)
+    }))
+    var france = data.map(e => ({
+      date: new Date(e.iyear),
+      attacks:  parseInt(e.France)
+    }))
+    var spain  = data.map(e => ({
+      date: new Date(e.iyear),
+      attacks:  parseInt(e.Spain)
+    }))
+    var uk = data.map(e => ({
+      date: new Date(e.iyear),
+      attacks:  parseInt(e['United Kingdom'])
+    }))
+
 //Defining the domain for the linear scaling using D3 extent which return the min and max
     x.domain(d3.extent(belgium, function(d) { return d.date; }));
     // debugger
-    y.domain([0, d3.max(belgium.map(function(d) { return d.attacks; }))])
+    y.domain([0, d3.max(uk.map(function(d) { return d.attacks; }))])
     // debugger
+
+    svg.append("path")
+        .attr("class", "line")
+        .attr("d", line(uk));
+
+    svg.append("path")
+       .attr("class", "area")
+       .attr("d", area(uk))
+    	 .style("fill-opacity", 1)
+       .style("fill", colours.uk)
+      
+    svg.append("path")
+        .attr("class", "line")
+        .attr("d", line(spain));
+
+    svg.append("path")
+       .attr("class", "area")
+       .attr("d", area(spain))
+    	 .style("fill-opacity", 1)
+       .style("fill", colours.spain)
+
+    svg.append("path")
+        .attr("class", "line")
+        .attr("d", line(france));
+
+    svg.append("path")
+       .attr("class", "area")
+       .attr("d", area(france))
+    	 .style("fill-opacity", 1)
+       .style("fill", colours.france)
+
     svg.append("path")
         .attr("class", "line")
         .attr("d", line(belgium));
@@ -116,7 +186,19 @@ var line = d3.line()
     svg.append("path")
        .attr("class", "area")
        .attr("d", area(belgium))
-    	 .style("fill-opacity", 0.1)
+    	 .style("fill-opacity", 1)
+       .style("fill", colours.belgium)
+    
+    svg.append("path")
+        .attr("class", "line")
+        .attr("d", line(italy));
+
+    svg.append("path")
+       .attr("class", "area")
+       .attr("d", area(italy))
+    	 .style("fill-opacity", 1)
+       .style("fill", colours.italy)
+
     	//  .style("fill", function(d) { return (belgium.iyear); });
     
 // Calling and defining the x axis at the same time     
