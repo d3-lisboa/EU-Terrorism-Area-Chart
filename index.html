@@ -59,17 +59,23 @@
   <div class="title">EU Terrorism 1970-2014</div>
   <div class="container">
     <div class="labels">
-      <div class="label" style="background: #f7ecab">Spain</div>
-      <div class="label" style="background: #96dfd1">Italy</div>
-      <div class="label" style="background: #f5c8c8">Uk</div>
-      <div class="label" style="background: #badeb5">France</div>
-      <div class="label" style="background: #9dbece">Belgium</div>
+      <div class="label" style="background: #f7ecab" onclick="redraw('#spain')">Spain</div>
+      <div class="label" style="background: #96dfd1" onclick="redraw('#italy')">Italy</div>
+      <div class="label" style="background: #f5c8c8" onclick="redraw('#uk')">Uk</div>
+      <div class="label" style="background: #badeb5" onclick="redraw('#france')">France</div>
+      <div class="label" style="background: #9dbece" onclick="redraw('#belgium')">Belgium</div>
     </div>
     <div class="visualization"></div>
   </div>
   <script>
 
   //country colours
+
+  function redraw(e) {
+    d3.selectAll('.area').attr('opacity', 0)
+    d3.selectAll('.line').attr('opacity', 0)
+    d3.selectAll(e).attr('opacity', 1)
+}
 
   var colours = {
     spain: '#f7ecab',
@@ -100,8 +106,6 @@
 //Defining the range for the time scale     
 	var x = d3.scaleTime().range([0, width]);
 
-  
-
 //Defining the range for the linear scaling  
   var  y = d3.scaleLinear().range([height, 0]);
     
@@ -109,7 +113,7 @@
 var line = d3.line()
     .x(function(d) { console.log(x(d.date)); return x(d.date); })
     // .x(function(d) { console.log(x(d.date)); return 27; })
-    .y(function(d) { console.log(y(d.attacks)); return y(d.attacks); });
+    .y(function(d) { console.log(d.colour); return y(d.attacks); });
  
 ////Creating the area generator, defing by using accessor functions the date being the x variable and the price being the y1 variable and the height being the y0 in order to avoid that the area that at the left up corner.   
    var area = d3.area()
@@ -124,24 +128,36 @@ var line = d3.line()
     var data = dsv.parse(raw);
     var belgium = data.map(e => ({
       date: new Date(e.iyear),
-      attacks:  parseInt(e.Belgium)
+      attacks:  parseInt(e.Belgium),
+      colour: colours.belgium,
+      name: 'belgium'
     }))
     var italy  = data.map(e => ({
       date: new Date(e.iyear),
-      attacks:  parseInt(e.Italy)
+      attacks:  parseInt(e.Italy),
+      colour: colours.italy,
+      name: 'italy'
     }))
     var france = data.map(e => ({
       date: new Date(e.iyear),
-      attacks:  parseInt(e.France)
+      attacks:  parseInt(e.France),
+      colour: colours.france,
+      name: 'france'
     }))
     var spain  = data.map(e => ({
       date: new Date(e.iyear),
-      attacks:  parseInt(e.Spain)
+      attacks:  parseInt(e.Spain),
+      colour: colours.spain,
+      name: 'spain'
     }))
     var uk = data.map(e => ({
       date: new Date(e.iyear),
-      attacks:  parseInt(e['United Kingdom'])
+      attacks:  parseInt(e['United Kingdom']),
+      colour: colours.uk,
+      name: 'uk'
     }))
+
+    var countries = [uk, italy, france, spain, belgium]
 
 //Defining the domain for the linear scaling using D3 extent which return the min and max
     x.domain(d3.extent(belgium, function(d) { return d.date; }));
@@ -149,57 +165,22 @@ var line = d3.line()
     y.domain([0, d3.max(uk.map(function(d) { return d.attacks; }))])
     // debugger
 
+    countries.forEach(function(d) { 
+  
     svg.append("path")
         .attr("class", "line")
-        .attr("d", line(uk));
+        .attr("id", d[0].name)
+        .attr('active',1)
+        .attr("d", line(d));
 
     svg.append("path")
        .attr("class", "area")
-       .attr("d", area(uk))
-    	 .style("fill-opacity", 1)
-       .style("fill", colours.uk)
-      
-    svg.append("path")
-        .attr("class", "line")
-        .attr("d", line(spain));
-
-    svg.append("path")
-       .attr("class", "area")
-       .attr("d", area(spain))
-    	 .style("fill-opacity", 1)
-       .style("fill", colours.spain)
-
-    svg.append("path")
-        .attr("class", "line")
-        .attr("d", line(france));
-
-    svg.append("path")
-       .attr("class", "area")
-       .attr("d", area(france))
-    	 .style("fill-opacity", 1)
-       .style("fill", colours.france)
-
-    svg.append("path")
-        .attr("class", "line")
-        .attr("d", line(belgium));
-
-    svg.append("path")
-       .attr("class", "area")
-       .attr("d", area(belgium))
-    	 .style("fill-opacity", 1)
-       .style("fill", colours.belgium)
-    
-    svg.append("path")
-        .attr("class", "line")
-        .attr("d", line(italy));
-
-    svg.append("path")
-       .attr("class", "area")
-       .attr("d", area(italy))
-    	 .style("fill-opacity", 1)
-       .style("fill", colours.italy)
-
-    	//  .style("fill", function(d) { return (belgium.iyear); });
+       .attr("d", area(d))
+       .attr("id", d[0].name)
+       .attr('active', 1)
+       .style("fill-opacity", 1)
+       .style("fill", colours[d[0].name])
+    })
     
 // Calling and defining the x axis at the same time     
     svg.append("g")
