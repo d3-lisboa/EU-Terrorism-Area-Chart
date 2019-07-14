@@ -29,6 +29,7 @@ Added a little css
 
 ### Phase 2 (to do)
 
-Get the other countries to also show, not just Belgium
+Get the other countries to also show, not just Belgium\
+Make some labels\
 
 
