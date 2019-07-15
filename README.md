@@ -6,7 +6,7 @@ Multi Area Chart with time axis showing terrorist incidents in EU 1970-2014
 
 https://bl.ocks.org/cerico/9b23469eb1d72b6fc73feb8ae3e07b3e/99995720925343165fd31b751765f712e24bc68c
 
-### Phase 1 (done)
+### Version 1 (done)
 
 Forked 'Multi Area Chart with time axis' block\
 Replaced data set with one found from internet\
@@ -27,9 +27,20 @@ Got a line and area for Belgium showing\
 Made a div for the svg and gave it a class to position and style it\
 Added a little css
 
-### Phase 2 (to do)
+### Version 2 (done)
 
-Get the other countries to also show, not just Belgium\
-Make some labels\
+Got 4 more countries to show\   
+Click to add/remove countries from view\
+
+### Version 3 (to do)
+
+Find highest value dynamically for axis\
+Redraw axis when adding/removing a country\
+Transitions\
+
+
+
+
+
 
 
