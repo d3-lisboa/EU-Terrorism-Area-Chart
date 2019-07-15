@@ -13,7 +13,7 @@
     .line {
       fill: none;
       stroke: #3288e2;
-      stroke-width: 2px;
+      /* stroke-width: 2px; */
     }
 
     .title {
@@ -64,19 +64,36 @@
       <div class="label" style="background: #f5c8c8" onclick="redraw('#uk')">Uk</div>
       <div class="label" style="background: #badeb5" onclick="redraw('#france')">France</div>
       <div class="label" style="background: #9dbece" onclick="redraw('#belgium')">Belgium</div>
+      <div class="label" style="background: #aaaaaa" onclick="redraw('all')">All</div>
+      <div class="label" style="background: #aaaaaa" onclick="redraw('clear')">Clear</div>
     </div>
     <div class="visualization"></div>
   </div>
   <script>
 
-  //country colours
 
   function redraw(e) {
-    d3.selectAll('.area').attr('opacity', 0)
-    d3.selectAll('.line').attr('opacity', 0)
-    d3.selectAll(e).attr('opacity', 1)
+    if (e === 'all') {
+      console.log(d3.selectAll('.area').attr('opacity'))
+      d3.selectAll('.area').style('opacity', 1).attr('active',1)
+      d3.selectAll('.line').style('opacity', 1).attr('active', 1)
+      console.log(d3.selectAll('.area').attr('opacity'))
+    } else if (e === 'clear') {
+      d3.selectAll('.area').style('opacity', 0.08).attr('active',0.08)
+      d3.selectAll('.line').style('opacity', 0.08).attr('active', 0.08)
+    } else {
+      var opacity = d3.selectAll(e).attr('active') == 1 ? 0.08 : 1
+      d3.selectAll(e).style('opacity', opacity)
+      d3.selectAll(e).attr('active', opacity)
+      var e = y.domain([0, d3.max(countries[2].map(function(d) { return d.attacks; }))])
+      d3.selectAll("axis--y")
+                    .transition()
+                    .call(d3.axisLeft(x)
+              .ticks(2)) 
+    }
 }
 
+  //country colours
   var colours = {
     spain: '#f7ecab',
     italy: '#96dfd1',
@@ -84,6 +101,8 @@
     france:'#badeb5',
     belgium:'#9dbece',
   }
+
+  var countries
  
 //Margin Convention     
   var margin = {top: 20, right: 30, bottom: 20, left: 100},
@@ -157,9 +176,9 @@ var line = d3.line()
       name: 'uk'
     }))
 
-    var countries = [uk, italy, france, spain, belgium]
+    countries = [uk, italy, france, spain, belgium]
 
-//Defining the domain for the linear scaling using D3 extent which return the min and max
+    //Defining the domain for the linear scaling using D3 extent which return the min and max
     x.domain(d3.extent(belgium, function(d) { return d.date; }));
     // debugger
     y.domain([0, d3.max(uk.map(function(d) { return d.attacks; }))])
@@ -178,7 +197,7 @@ var line = d3.line()
        .attr("d", area(d))
        .attr("id", d[0].name)
        .attr('active', 1)
-       .style("fill-opacity", 1)
+       .style("opacity", 1)
        .style("fill", colours[d[0].name])
     })
     
