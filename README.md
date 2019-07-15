@@ -4,7 +4,7 @@ Multi Area Chart with time axis showing terrorist incidents in EU 1970-2014
 
 ### Block
 
-https://bl.ocks.org/cerico/9b23469eb1d72b6fc73feb8ae3e07b3e/99995720925343165fd31b751765f712e24bc68c
+https://bl.ocks.org/cerico/9b23469eb1d72b6fc73feb8ae3e07b3e
 
 ### Version 1 (done)
 
@@ -29,14 +29,16 @@ Added a little css
 
 ### Version 2 (done)
 
-Got 4 more countries to show\   
+Got 4 more countries to show\ 
 Click to add/remove countries from view\
+
 
 ### Version 3 (to do)
 
 Find highest value dynamically for axis\
 Redraw axis when adding/removing a country\
 Transitions\
+
 
 
 
