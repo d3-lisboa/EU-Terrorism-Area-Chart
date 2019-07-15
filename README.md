@@ -29,7 +29,7 @@ Added a little css
 
 ### Version 2 (done)
 
-Got 4 more countries to show\   
+Got 4 more countries to show\ 
 Click to add/remove countries from view\
 
 ### Version 3 (to do)
