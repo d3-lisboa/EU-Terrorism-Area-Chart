@@ -4,7 +4,7 @@
   <script src="https://d3js.org/d3.v4.min.js"></script>
   <link href="//fonts.googleapis.com/css?family=.|Oswald:light,normal,bold|Oswald:light,normal,bold|Oswald:light,normal,bold|Raleway:light,normal,bold|Roboto:light,normal,bold" rel="stylesheet" type="text/css" />
   <style>
-    body { color:#3288e2;background:#fbf7ef;margin:0;position:fixed;top:0;right:0;bottom:0;left:0; }
+    body { color:#3288e2;background:#fbf7ef;margin:0;top:0;right:0;bottom:0;left:0; }
     
 		svg {
   		font: 10px sans-serif;
@@ -37,7 +37,31 @@
       overflow: scroll;
     }
 
-    .labels {
+    .todos {
+       border: 2px solid #ece5d6;
+       text-align: left;
+       font-family: roboto;
+       margin-top: 16px;
+       padding-left: 5%;
+       padding-right: 5%;
+    }
+
+    .todo {
+      line-height: 24px;
+      background: #3288e2;
+      color: #fbf7ef;
+      padding-top: 0%;
+      padding-left: 2%;
+      font-family: raleway;
+      width: 50%;
+    }
+
+    .first {
+      padding-top:8px
+    }
+
+    .last {
+      padding-bottom:8px
     }
 
     .label {
@@ -75,24 +99,35 @@
       <div class="label" style="background: #aaaaaa" onclick="redraw('clear')">Clear</div>
     </div>
     <div class="visualization"></div>
+    <div class="todos">
+      <div class="first todo">1. Work out how to get highest number for y axis</div>
+      <div class="todo">2. Work out how to redraw axis</div>
+      <div class="todo">3. Group numbers by decade</div>
+      <div class="todo">4. Transition the opacity</div>
+      <div class="todo">5. Sort the lines to put the smaller ones first</div>
+      <div class="todo">6. Get different date (EU Migration?) at click of button</div>
+      <div class="last todo">7. Responsive width</div>      
+    </div>
   </div>
   <script>
 
 
   function redraw(e) {
     if (e === 'all') {
-      console.log(d3.selectAll('.area').attr('opacity'))
       d3.selectAll('.area').style('opacity', 1).attr('active',1)
       d3.selectAll('.line').style('opacity', 1).attr('active', 1)
-      console.log(d3.selectAll('.area').attr('opacity'))
+      console.log('make every  line and area visible')
     } else if (e === 'clear') {
       d3.selectAll('.area').style('opacity', 0.08).attr('active',0.08)
       d3.selectAll('.line').style('opacity', 0.08).attr('active', 0.08)
+      console.log('make every line and area almost invisible')
     } else {
       var opacity = d3.selectAll(e).attr('active') == 1 ? 0.08 : 1
       d3.selectAll(e).style('opacity', opacity)
       d3.selectAll(e).attr('active', opacity)
+      console.log('make every line and area the opposite of what it currently is')
       var e = y.domain([0, d3.max(countries[2].map(function(d) { return d.attacks; }))])
+      console.log('this bit doesnt work yet')
       d3.selectAll("axis--y")
                     .transition()
                     .call(d3.axisLeft(x)
@@ -158,6 +193,8 @@ var line = d3.line()
       colour: colours.belgium,
       name: 'belgium'
     }))
+    console.table(belgium)
+    console.log('problem, we are defining belgium multiple times')
     var italy  = data.map(e => ({
       date: new Date(e.iyear),
       attacks:  parseInt(e.Italy),
@@ -190,6 +227,7 @@ var line = d3.line()
     // debugger
     y.domain([0, d3.max(uk.map(function(d) { return d.attacks; }))])
     // debugger
+    console.log("this is a problem, how do we know which country to define the y axis by?")
 
     countries.forEach(function(d) { 
   
@@ -207,6 +245,7 @@ var line = d3.line()
        .style("opacity", 1)
        .style("fill", colours[d[0].name])
     })
+    console.log("because we are defining name belgium every time")
     
 // Calling and defining the x axis at the same time     
     svg.append("g")
