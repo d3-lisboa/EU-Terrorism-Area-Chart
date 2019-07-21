@@ -10,6 +10,12 @@
   		font: 10px sans-serif;
 		}
 
+    .rect {
+      background:#3288e2;
+      width: 50px;
+      height: 50px
+    }
+
     .line {
       fill: none;
       stroke: #3288e2;
@@ -82,6 +88,10 @@
     .visualization {
       text-align:left
     }
+
+    .legend{
+      color: red
+    }
     
   </style>
 </head>
@@ -89,15 +99,7 @@
 <body>
   <div class="title">EU Terrorism 1970-2014</div>
   <div class="container">
-    <div class="labels">
-      <div class="label" style="background: #f7ecab" onclick="redraw('#spain')">Spain</div>
-      <div class="label" style="background: #96dfd1" onclick="redraw('#italy')">Italy</div>
-      <div class="label" style="background: #f5c8c8" onclick="redraw('#uk')">Uk</div>
-      <div class="label" style="background: #badeb5" onclick="redraw('#france')">France</div>
-      <div class="label" style="background: #9dbece" onclick="redraw('#belgium')">Belgium</div>
-      <div class="label" style="background: #aaaaaa" onclick="redraw('all')">All</div>
-      <div class="label" style="background: #aaaaaa" onclick="redraw('clear')">Clear</div>
-    </div>
+    <div class="legend"></div>
     <div class="visualization"></div>
     <div class="todos">
       <div class="first todo">1. Redo the transition to add/remove with d3</div>
@@ -111,30 +113,6 @@
   </div>
   <script>
 
-
-//   function redraw(e) {
-//     if (e === 'all') {
-//       d3.selectAll('.area').style('opacity', 1).attr('active',1)
-//       d3.selectAll('.line').style('opacity', 1).attr('active', 1)
-//       console.log('make every  line and area visible')
-//     } else if (e === 'clear') {
-//       d3.selectAll('.area').style('opacity', 0.08).attr('active',0.08)
-//       d3.selectAll('.line').style('opacity', 0.08).attr('active', 0.08)
-//       console.log('make every line and area almost invisible')
-//     } else {
-//       var opacity = d3.selectAll(e).attr('active') == 1 ? 0.08 : 1
-//       d3.selectAll(e).style('opacity', opacity)
-//       d3.selectAll(e).attr('active', opacity)
-//       console.log('make every line and area the opposite of what it currently is')
-//       var e = y.domain([0, d3.max(countries[2].map(function(d) { return d.attacks; }))])
-//       console.log('this bit doesnt work yet')
-//       d3.selectAll("axis--y")
-//                     .transition()
-//                     .call(d3.axisLeft(x)
-//               .ticks(2)) 
-//     }
-// }
-
   //country colours
   var colours = {
     Spain: '#f7ecab',
@@ -145,7 +123,7 @@
     Denmark:'pink',
     Germany: 'orange',
     Greece: 'green',
-    Ireland: 'black',
+    Ireland: '#d6ecd8',
     Italy: 'yellow',
     Luxembourg:'rebeccapurple',
     Netherlands:'blue',
@@ -156,6 +134,7 @@
   var margin = {top: 20, right: 30, bottom: 20, left: 60},
       width = 900 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom;
+      labelHeight = 45
     
 //Container  
   var svg = d3.select(".visualization").append("svg")
@@ -163,6 +142,11 @@
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  var legend = d3.select(".legend").append("svg")
+      .attr("width", width)
+      .attr("height", labelHeight)
+      .append('g');
 
 //Saving the correct time format for D3 
   var parseDate = d3.timeParse("%b %Y");
@@ -201,12 +185,12 @@
         return
       }
       data.push({"date": row["iyear"], "price": row[colname], "country": colname});
+      });
     });
-  });
 
-  var symbols = d3.nest()
-        .key(function(d) { return d.country; })
-        .entries(data);
+    var symbols = d3.nest()
+      .key(function(d) { return d.country; })
+      .entries(data);
 
 // Parse and caculate some values for each countries
     symbols.forEach(function(s) {
@@ -214,7 +198,7 @@
       // changes eg "United Kingdom to UnitedKingdom"
       s.colour = colours[key]
       s.values.forEach(function(d) { 
-        d.date = parseDate(`Jan ${d.date}`); 
+        d.date = d.date; 
         d.price = +d.price; 
       });
       
@@ -223,7 +207,6 @@
     });
     console.table(orig_data)
     console.table(data)
-    console.table(symbols);
 
     //Defining the domain for the linear scaling using D3 extent which return the min and max
     x.domain(d3.extent(data, function(d) { return d.date; }));
@@ -231,38 +214,62 @@
     y.domain([0, d3.max(symbols.map(function(d) { return d.maxPrice; }))])
 
     svg.selectAll(".line")
-       .data(symbols)
-       .enter()
-       .append("path")
-    	 .attr("class", "line")
-       .attr("d", function(d) { return line(d.values); })
-    	 .style("stroke", function(d) { return (d.colour); });
+      .data(symbols)
+      .enter()
+      .append("path")
+      .attr("class", "line")
+      .attr("d", function(d) { return line(d.values); })
+    	.style("stroke", function(d) { return (d.colour); });
 
     svg.selectAll(".area")
-       .data(symbols)
-       .enter()
-       .append("path")
-       .attr("class", "area")
-       .attr("d", function(d) { return area(d.values); })
-    	 .style("fill-opacity", 0.6)
-    	 .style("fill", function(d) { return (d.colour); });
+      .data(symbols)
+      .enter()
+      .append("path")
+      .attr("class", "area")
+      .attr("d", function(d) { return area(d.values); })
+    	.style("fill-opacity", 0.6)
+    	.style("fill", function(d) { return (d.colour); });
 
-  
 
 // Calling and defining the x axis at the same time     
     svg.append("g")
-        .attr("class", "axis--x")
-        .attr("transform", "translate(0," + height + ")")  
-        .call(d3.axisBottom(x)
-              .ticks(8)
-           		.tickFormat(formatTime));
+      .attr("class", "axis--x")
+      .attr("transform", "translate(0," + height + ")")  
+      .call(d3.axisBottom(x)
+      .ticks(8)
+      .tickFormat(formatTime));
     
 //Calling and defining the y axis at the same time 
     svg.append("g")
-        .attr("class", "axis--y")
-        .call(d3.axisLeft(y)
-              .ticks(4)); 
-            })
+      .attr("class", "axis--y")
+      .call(d3.axisLeft(y)
+      .ticks(4)); 
+
+// Legend
+    legend.selectAll("rect")
+      .data(symbols)
+      .enter()
+      .append("g")
+      .append("rect")
+      .attr("height", labelHeight)
+      .attr("width", width / symbols.length)
+      .attr("fill", function(d) { return (d.colour); })
+      .attr("transform", function(d, i){ 
+        return "translate(" + (width / symbols.length*i) + ",0)"
+      });
+
+    legend.selectAll("g")
+      .append("text")
+      .attr("transform", 
+        function(d, i){ return "translate(" + (width / symbols.length*i) + ",30)";
+      })
+      .attr("font-size", "2em")
+      .attr("color", "black")
+      .text(function(d){ return d.key;})
+      .on("click", function(d) {
+        alert(d.key)
+      });
+  })
     
   </script>
 </body>
