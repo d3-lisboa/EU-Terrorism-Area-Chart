@@ -6,42 +6,46 @@ Multi Area Chart with time axis showing terrorist incidents in EU 1970-2014
 
 https://bl.ocks.org/cerico/9b23469eb1d72b6fc73feb8ae3e07b3e
 
-### Version 1 (done)
+### Wide Data Issue
 
-Forked 'Multi Area Chart with time axis' block\
-Replaced data set with one found from internet\
-Removed the symbols and d3.nest code as data isn't doing that\
-Formatted the data to fit the existing scheme with
+I had to convert the "Wide Data" to "Long Data" for this to work. This seems to be a common problem, with d3 datasets so it may be worth knowing - see also here
+
+http://jonathansoma.com/tutorials/d3/wide-vs-long-data/
 
 ```
-data.forEach(function(d) {
-  d.date = new Date(d.iyear)
-  d.Belgium = parseInt(d.Belgium)
-});
+  var orig_data = dsv.parse(raw);
+    var data = [];
+    orig_data.forEach( function(row) {
+    
+      Object.keys(row).forEach( function(colname) {
+      // Ignore 'State' and 'Value' columns
+      if(colname == "iyear" || colname == "price") {
+        return
+      }
+      data.push({"date": row["iyear"], "price": row[colname], "country": colname});
+    });
+  console.table(orig_data)
+  console.table(data)
 ```
 
-Made the 'number' into an integer here or d3.max got confused and thought 7 was larger than 20\
-Removed the maxPrice stuff and made the y domain based on Belgiums highest number\
-Altered the `data(symbols).onEnter()` code as not using the symbols and it didn't work\ 
-Got a line and area for Belgium showing\
-Made a div for the svg and gave it a class to position and style it\
-Added a little css
+### Colours /  Keys with spaces
 
-### Version 2 (done)
+I set the colour from an array of colours using the key. The problem was with "United Kingdom", as a key shouldn't have spaces. I fixed this with
 
-Got 4 more countries to show\ 
-Click to add/remove countries from view\
+```
+  symbols.forEach(function(s) {
+      var key = s.key.replace(/\s+/g, '');
+      s.colour = colours[key]
+  })
+```
 
+### Dates
 
-### Version 3 (to do)
+Parsing the date with `d.date = parseDate(d.date)`  didn't work for me as my dates were like "2002" and the original dates were like "Jan 2002", so i added a "Jan" like this
 
-Find highest value dynamically for axis\
-Redraw axis when adding/removing a country\
-Transitions\
-
-
-
-
+```
+d.date = parseDate(`Jan ${d.date}`); 
+```
 
 
 
