@@ -100,7 +100,7 @@
     </div>
     <div class="visualization"></div>
     <div class="todos">
-      <div class="first todo">1. Work out how to get highest number for y axis</div>
+      <div class="first todo">1. Redo the transition to add/remove with d3</div>
       <div class="todo">2. Work out how to redraw axis</div>
       <div class="todo">3. Group numbers by decade</div>
       <div class="todo">4. Transition the opacity</div>
@@ -112,39 +112,45 @@
   <script>
 
 
-  function redraw(e) {
-    if (e === 'all') {
-      d3.selectAll('.area').style('opacity', 1).attr('active',1)
-      d3.selectAll('.line').style('opacity', 1).attr('active', 1)
-      console.log('make every  line and area visible')
-    } else if (e === 'clear') {
-      d3.selectAll('.area').style('opacity', 0.08).attr('active',0.08)
-      d3.selectAll('.line').style('opacity', 0.08).attr('active', 0.08)
-      console.log('make every line and area almost invisible')
-    } else {
-      var opacity = d3.selectAll(e).attr('active') == 1 ? 0.08 : 1
-      d3.selectAll(e).style('opacity', opacity)
-      d3.selectAll(e).attr('active', opacity)
-      console.log('make every line and area the opposite of what it currently is')
-      var e = y.domain([0, d3.max(countries[2].map(function(d) { return d.attacks; }))])
-      console.log('this bit doesnt work yet')
-      d3.selectAll("axis--y")
-                    .transition()
-                    .call(d3.axisLeft(x)
-              .ticks(2)) 
-    }
-}
+//   function redraw(e) {
+//     if (e === 'all') {
+//       d3.selectAll('.area').style('opacity', 1).attr('active',1)
+//       d3.selectAll('.line').style('opacity', 1).attr('active', 1)
+//       console.log('make every  line and area visible')
+//     } else if (e === 'clear') {
+//       d3.selectAll('.area').style('opacity', 0.08).attr('active',0.08)
+//       d3.selectAll('.line').style('opacity', 0.08).attr('active', 0.08)
+//       console.log('make every line and area almost invisible')
+//     } else {
+//       var opacity = d3.selectAll(e).attr('active') == 1 ? 0.08 : 1
+//       d3.selectAll(e).style('opacity', opacity)
+//       d3.selectAll(e).attr('active', opacity)
+//       console.log('make every line and area the opposite of what it currently is')
+//       var e = y.domain([0, d3.max(countries[2].map(function(d) { return d.attacks; }))])
+//       console.log('this bit doesnt work yet')
+//       d3.selectAll("axis--y")
+//                     .transition()
+//                     .call(d3.axisLeft(x)
+//               .ticks(2)) 
+//     }
+// }
 
   //country colours
   var colours = {
-    spain: '#f7ecab',
-    italy: '#96dfd1',
-    uk: '#f5c8c8',
-    france:'#badeb5',
-    belgium:'#9dbece',
+    Spain: '#f7ecab',
+    Italy: '#96dfd1',
+    UnitedKingdom: '#f5c8c8',
+    France:'#badeb5',
+    Belgium:'#9dbece',
+    Denmark:'pink',
+    Germany: 'orange',
+    Greece: 'green',
+    Ireland: 'black',
+    Italy: 'yellow',
+    Luxembourg:'rebeccapurple',
+    Netherlands:'blue',
+    Portugal:'red'
   }
-
-  var countries
  
 //Margin Convention     
   var margin = {top: 20, right: 30, bottom: 20, left: 60},
@@ -171,82 +177,77 @@
   var  y = d3.scaleLinear().range([height, 0]);
     
 //Creating the line generator, defing by using accessor functions the date being the x variable and the price being the y variable  
-var line = d3.line()
-    .x(function(d) { console.log(x(d.date)); return x(d.date); })
-    // .x(function(d) { console.log(x(d.date)); return 27; })
-    .y(function(d) { console.log(d.colour); return y(d.attacks); });
+  var line = d3.line()
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.price); });
  
 ////Creating the area generator, defing by using accessor functions the date being the x variable and the price being the y1 variable and the height being the y0 in order to avoid that the area that at the left up corner.   
-   var area = d3.area()
+  var area = d3.area()
     .x(function(d) { return x(d.date); })
   	.y0(height)
-    .y1(function(d) { return y(d.attacks); });
+    .y1(function(d) { return y(d.price); });
  
 //Connecting to the belgium set    
   d3.text('EU_Terrorism.csv', function(error, raw) {
 
     var dsv = d3.dsvFormat(',')
-    var data = dsv.parse(raw);
-    var belgium = data.map(e => ({
-      date: new Date(e.iyear),
-      attacks:  parseInt(e.Belgium),
-      colour: colours.belgium,
-      name: 'belgium'
-    }))
-    console.table(belgium)
-    console.log('problem, we are defining belgium multiple times')
-    var italy  = data.map(e => ({
-      date: new Date(e.iyear),
-      attacks:  parseInt(e.Italy),
-      colour: colours.italy,
-      name: 'italy'
-    }))
-    var france = data.map(e => ({
-      date: new Date(e.iyear),
-      attacks:  parseInt(e.France),
-      colour: colours.france,
-      name: 'france'
-    }))
-    var spain  = data.map(e => ({
-      date: new Date(e.iyear),
-      attacks:  parseInt(e.Spain),
-      colour: colours.spain,
-      name: 'spain'
-    }))
-    var uk = data.map(e => ({
-      date: new Date(e.iyear),
-      attacks:  parseInt(e['United Kingdom']),
-      colour: colours.uk,
-      name: 'uk'
-    }))
+    var orig_data = dsv.parse(raw);
+    var data = [];
+    orig_data.forEach( function(row) {
+    
+      Object.keys(row).forEach( function(colname) {
+      // Ignore 'State' and 'Value' columns
+      if(colname == "iyear" || colname == "price") {
+        return
+      }
+      data.push({"date": row["iyear"], "price": row[colname], "country": colname});
+    });
+  });
 
-    countries = [uk, italy, france, spain, belgium]
+  var symbols = d3.nest()
+        .key(function(d) { return d.country; })
+        .entries(data);
+
+// Parse and caculate some values for each countries
+    symbols.forEach(function(s) {
+      var key = s.key.replace(/\s+/g, '');
+      // changes eg "United Kingdom to UnitedKingdom"
+      s.colour = colours[key]
+      s.values.forEach(function(d) { 
+        d.date = parseDate(`Jan ${d.date}`); 
+        d.price = +d.price; 
+      });
+      
+      s.maxPrice = d3.max(s.values, function(d) { return d.price; });
+      s.sumPrice = d3.sum(s.values, function(d) { return d.price; });
+    });
+
+    console.table(symbols);
 
     //Defining the domain for the linear scaling using D3 extent which return the min and max
-    x.domain(d3.extent(belgium, function(d) { return d.date; }));
-    // debugger
-    y.domain([0, d3.max(uk.map(function(d) { return d.attacks; }))])
-    // debugger
-    console.log("this is a problem, how do we know which country to define the y axis by?")
-
-    countries.forEach(function(d) { 
-  
-    svg.append("path")
-        .attr("class", "line")
-        .attr("id", d[0].name)
-        .attr('active',1)
-        .attr("d", line(d));
-
-    svg.append("path")
-       .attr("class", "area")
-       .attr("d", area(d))
-       .attr("id", d[0].name)
-       .attr('active', 1)
-       .style("opacity", 1)
-       .style("fill", colours[d[0].name])
-    })
-    console.log("because we are defining name belgium every time")
+    x.domain(d3.extent(data, function(d) { return d.date; }));
     
+    y.domain([0, d3.max(symbols.map(function(d) { return d.maxPrice; }))])
+
+    svg.selectAll(".line")
+       .data(symbols)
+       .enter()
+       .append("path")
+    	 .attr("class", "line")
+       .attr("d", function(d) { return line(d.values); })
+    	 .style("stroke", function(d) { return (d.colour); });
+
+    svg.selectAll(".area")
+       .data(symbols)
+       .enter()
+       .append("path")
+       .attr("class", "area")
+       .attr("d", function(d) { return area(d.values); })
+    	 .style("fill-opacity", 0.6)
+    	 .style("fill", function(d) { return (d.colour); });
+
+  
+
 // Calling and defining the x axis at the same time     
     svg.append("g")
         .attr("class", "axis--x")
@@ -259,8 +260,8 @@ var line = d3.line()
     svg.append("g")
         .attr("class", "axis--y")
         .call(d3.axisLeft(y)
-              .ticks(4));  
-  });
+              .ticks(4)); 
+            })
     
   </script>
 </body>
