@@ -47,6 +47,12 @@ Parsing the date with `d.date = parseDate(d.date)`  didn't work for me as my dat
 d.date = parseDate(`Jan ${d.date}`); 
 ```
 
+### console.table()
 
+look in the inspector and we can see
+
+1) the original data from the csv
+2) the data transformed from 'wide data' to 'long data'
+3) the data then transformed by d3.nest
 
 

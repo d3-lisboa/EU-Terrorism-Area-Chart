@@ -221,7 +221,8 @@
       s.maxPrice = d3.max(s.values, function(d) { return d.price; });
       s.sumPrice = d3.sum(s.values, function(d) { return d.price; });
     });
-
+    console.table(orig_data)
+    console.table(data)
     console.table(symbols);
 
     //Defining the domain for the linear scaling using D3 extent which return the min and max
