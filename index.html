@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <head>
   <meta charset="utf-8">
-  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <!-- <script src="https://d3js.org/d3.v4.min.js"></script> -->
+  <script src="./d3.js"></script>
   <link href="//fonts.googleapis.com/css?family=.|Oswald:light,normal,bold|Oswald:light,normal,bold|Oswald:light,normal,bold|Raleway:light,normal,bold|Roboto:light,normal,bold" rel="stylesheet" type="text/css" />
   <style>
     body { color:#3288e2;background:#fbf7ef;margin:0;top:0;right:0;bottom:0;left:0; }
@@ -9,6 +10,18 @@
 		svg {
   		font: 10px sans-serif;
 		}
+
+    .orange {
+      fill: black
+    }
+
+    .normal{
+      opacity: 0.1
+    }
+
+    .highlighted {
+      opacity: 1
+    }
 
     .rect {
       background:#3288e2;
@@ -194,9 +207,9 @@
 
 // Parse and caculate some values for each countries
     symbols.forEach(function(s) {
-      var key = s.key.replace(/\s+/g, '');
+      s.key = s.key.replace(/\s+/g, '');
       // changes eg "United Kingdom to UnitedKingdom"
-      s.colour = colours[key]
+      s.colour = colours[s.key]
       s.values.forEach(function(d) { 
         d.date = d.date; 
         d.price = +d.price; 
@@ -225,9 +238,10 @@
       .data(symbols)
       .enter()
       .append("path")
-      .attr("class", "area")
+      .attr("class", "normal")
+      .attr("id", function(d) { return (d.key); })
       .attr("d", function(d) { return area(d.values); })
-    	.style("fill-opacity", 0.6)
+    	.style("class", "normal")
     	.style("fill", function(d) { return (d.colour); });
 
 
@@ -267,7 +281,8 @@
       .attr("color", "black")
       .text(function(d){ return d.key;})
       .on("click", function(d) {
-        alert(d.key)
+        var opacity = d3.selectAll(`#${d.key}`).attr('class') === 'normal' ? 'highlighted' : 'normal'
+        d3.selectAll(`#${d.key}`).attr('class', opacity)
       });
   })
     
